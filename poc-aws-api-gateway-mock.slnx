@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/PocAwsApiGatewayMock.Client/PocAwsApiGatewayMock.Client.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PocAwsApiGatewayMock.Client.Tests/PocAwsApiGatewayMock.Client.Tests.csproj" />
+  </Folder>
+</Solution>
