@@ -3,14 +3,28 @@ using PocAwsApiGatewayMock.Client;
 
 namespace PocAwsApiGatewayMock.Client.Tests;
 
-public class LibraryCatalogClientTests
+public class LibraryCatalogTests : IDisposable
 {
+    private readonly HttpClient _http;
+    private readonly AwsApiGatewayTransport _transport;
+    private readonly LibraryCatalog _catalog;
+
+    public LibraryCatalogTests()
+    {
+        _http = new HttpClient(); // later: add handler / default headers / timeouts here
+        _transport = new AwsApiGatewayTransport(_http, new Uri("https://example"));
+        _catalog = new LibraryCatalog(_transport);
+    }
+
+    public void Dispose()
+    {
+        _http.Dispose();
+    }
+
     [Fact]
     public void GetCatalogRecordByIsbn_ReturnsRecord_WithIsbn()
     {
-        var client = new LibraryCatalogClient();
-
-        var record = client.GetCatalogRecordByIsbn("9780765326355");
+        var record = _catalog.GetCatalogRecordByIsbn("9780765326355");
 
         Assert.NotNull(record);
         Assert.NotNull(record.Isbn);
@@ -20,10 +34,8 @@ public class LibraryCatalogClientTests
     [Fact]
     public void GetCatalogRecordsByExactTitle_ReturnsSingleRecord_WithTitle()
     {
-        var client = new LibraryCatalogClient();
-
-        var records = client.GetCatalogRecordsByExactTitle("The Way of Kings");
-
+        var records = _catalog.GetCatalogRecordsByExactTitle("The Way of Kings");
+        
         Assert.NotNull(records);
         var record = Assert.Single(records);
         Assert.Equal("The Way of Kings", record.Title);
@@ -170,14 +182,13 @@ public class LibraryCatalogClientTests
     }
 
     [Fact(Skip = "Not implemented: requires CancellationToken plumbed through and prompt cancellation behavior.")]
-    public async Task CancellationToken_CancelsInFlightRequest_AndAvoidsZombieWork()
+    public void CancellationToken_CancelsInFlightRequest_AndAvoidsZombieWork()
     {
         // Arrange: a request that would block/delay
         // Act: cancel token quickly
         // Assert:
         //   - Task is canceled promptly (OperationCanceledException / TaskCanceledException)
         //   - no additional retries/work continues after cancellation
-        await Task.CompletedTask;
     }
 
     [Fact(Skip = "Not implemented: requires forward-compatible parsing for unknown enum/string values.")]
@@ -191,13 +202,12 @@ public class LibraryCatalogClientTests
     }
 
     [Fact(Skip = "Not implemented: requires large response handling strategy (streaming vs buffering) and possibly gzip.")]
-    public async Task ExportCheckoutHistory_HandlesLargeResponses_AndOptionalContentEncoding()
+    public void ExportCheckoutHistory_HandlesLargeResponses_AndOptionalContentEncoding()
     {
         // Arrange: thousands of rows; maybe gzip content-encoding
         // Act: client.ExportCheckoutHistory(patronId, cancellationToken)
         // Assert:
         //   - does not OOM / does not buffer entire response if streaming is intended
         //   - handles gzip if enabled
-        await Task.CompletedTask;
     }
 }
