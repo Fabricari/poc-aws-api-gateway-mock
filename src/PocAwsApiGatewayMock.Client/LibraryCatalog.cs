@@ -1,7 +1,14 @@
 namespace PocAwsApiGatewayMock.Client;
 
-public class LibraryCatalogClient
+public class LibraryCatalog
 {
+    private readonly AwsApiGatewayTransport _transport;
+
+    public LibraryCatalog(AwsApiGatewayTransport transport)
+    {
+        _transport = transport;
+    }
+
     public CatalogRecord GetCatalogRecordByIsbn(string isbn)
     {
         return new CatalogRecord
