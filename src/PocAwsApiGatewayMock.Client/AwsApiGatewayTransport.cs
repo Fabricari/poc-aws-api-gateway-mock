@@ -21,10 +21,10 @@ public class AwsApiGatewayTransport
 
     // Transport-level API (still “about AWS gateway resources”, not JSON/URI)
     public CatalogRecord GetCatalogRecordByIsbn(string isbn)
-        => Get200Json<CatalogRecord>($"/catalog/{EscapePath(isbn)}");
+        => Get200Json<CatalogRecord>($"/dev/catalog/{EscapePath(isbn)}");
 
     public List<CatalogRecord> GetCatalogRecordsByExactTitle(string title)
-        => Get200Json<List<CatalogRecord>>($"/catalog?title={EscapeQuery(title)}&match=exact");
+        => Get200Json<List<CatalogRecord>>($"/dev/catalog?title={EscapeQuery(title)}&match=exact");
 
     // Generic primitive (reusable across endpoints)
     private T Get200Json<T>(string relativePath)
