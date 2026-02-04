@@ -20,4 +20,29 @@ public class LibraryCatalog
 
     public List<CatalogRecord> GetCatalogRecordsByExactTitle(string title)
         => _transport.GetCatalogRecordsByExactTitle(title);
+
+    public List<CatalogRecord> ListBooksByAuthor(string author, int pageSize)
+    {
+        var accumulatedRecords = new List<CatalogRecord>();
+        string? nextPageToken = null;
+
+        // Fetch pages until the server indicates there are no more results.
+        while (true)
+        {
+            var pageResult = _transport.ListBooksByAuthorPage(
+                author,
+                pageSize,
+                nextPageToken);
+
+            if (pageResult.Items is not null)
+                accumulatedRecords.AddRange(pageResult.Items);
+
+            if (string.IsNullOrWhiteSpace(pageResult.NextToken))
+                break;
+
+            nextPageToken = pageResult.NextToken;
+        }
+
+        return accumulatedRecords;
+    }
 }

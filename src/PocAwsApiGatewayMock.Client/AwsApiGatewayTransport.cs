@@ -20,7 +20,6 @@ public class AwsApiGatewayTransport
     //Serialization policy is part of the transport contract. If it needs to vary, we’ll introduce a seam then.
     private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web);
 
-
     public AwsApiGatewayTransport(HttpClient http, Uri baseUri)
     {
         _http = http;
@@ -33,6 +32,15 @@ public class AwsApiGatewayTransport
 
     public List<CatalogRecord> GetCatalogRecordsByExactTitle(string title)
         => Get200Json<List<CatalogRecord>>($"/dev/catalog?title={EscapeQuery(title)}&match=exact");
+
+    public CatalogRecordPage ListBooksByAuthorPage(string author, int limit, string? nextToken)
+    {
+        var query = $"author={EscapeQuery(author)}&limit={limit}";
+        if (!string.IsNullOrWhiteSpace(nextToken))
+            query += $"&nextToken={EscapeQuery(nextToken)}";
+
+        return Get200Json<CatalogRecordPage>($"/dev/catalog/page?{query}");
+    }
 
     // Low-level primitive:
     // - issues a GET

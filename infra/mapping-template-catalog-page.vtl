@@ -1,0 +1,48 @@
+#set($token = $input.params('nextToken'))
+#set($author = $input.params('author'))
+#set($limit = $input.params('limit'))
+
+## Page 1: Titles 1–5 (sorted by Title then Isbn)
+#if($token == '')
+{
+  "items": [
+    { "isbn": "9780765326461", "title": "Elantris", "author": "Brandon Sanderson", "publicationYear": 2005, "edition": "First Edition", "format": "Paperback", "description": "Standalone fantasy novel." },
+    { "isbn": "9780765326379", "title": "Oathbringer", "author": "Brandon Sanderson", "publicationYear": 2017, "edition": "First Edition", "format": "Hardcover", "description": "Third Stormlight Archive novel." },
+    { "isbn": "9780765326386", "title": "Rhythm of War", "author": "Brandon Sanderson", "publicationYear": 2020, "edition": "First Edition", "format": "Hardcover", "description": "Fourth Stormlight Archive novel." },
+    { "isbn": "9780765326430", "title": "Shadows of Self", "author": "Brandon Sanderson", "publicationYear": 2015, "edition": "First Edition", "format": "Paperback", "description": "Mistborn era two continues." },
+    { "isbn": "9780765326423", "title": "The Alloy of Law", "author": "Brandon Sanderson", "publicationYear": 2011, "edition": "First Edition", "format": "Paperback", "description": "Mistborn era two begins." }
+  ],
+  "nextToken": "p2"
+}
+
+## Page 2: Titles 6–10 (sorted by Title then Isbn)
+#elseif($token == 'p2')
+{
+  "items": [
+    { "isbn": "9780765326447", "title": "The Bands of Mourning", "author": "Brandon Sanderson", "publicationYear": 2016, "edition": "First Edition", "format": "Paperback", "description": "Mistborn era two continues." },
+    { "isbn": "9780765326393", "title": "The Final Empire", "author": "Brandon Sanderson", "publicationYear": 2006, "edition": "First Edition", "format": "Paperback", "description": "Mistborn era one begins." },
+    { "isbn": "9780765326416", "title": "The Hero of Ages", "author": "Brandon Sanderson", "publicationYear": 2008, "edition": "First Edition", "format": "Paperback", "description": "Mistborn era one concludes." },
+    { "isbn": "9780765326454", "title": "The Lost Metal", "author": "Brandon Sanderson", "publicationYear": 2022, "edition": "First Edition", "format": "Hardcover", "description": "Mistborn era two concludes." },
+    { "isbn": "9780765326355", "title": "The Way of Kings", "author": "Brandon Sanderson", "publicationYear": 2010, "edition": "First Edition", "format": "Hardcover", "description": "Epic fantasy on Roshar." }
+  ],
+  "nextToken": "p3"
+}
+
+## Page 3: Titles 11–14 (sorted by Title then Isbn)
+#elseif($token == 'p3')
+{
+  "items": [
+    { "isbn": "9780765326409", "title": "The Well of Ascension", "author": "Brandon Sanderson", "publicationYear": 2007, "edition": "First Edition", "format": "Paperback", "description": "Mistborn era one continues." },
+    { "isbn": "9780765326485", "title": "Tress of the Emerald Sea", "author": "Brandon Sanderson", "publicationYear": 2023, "edition": "First Edition", "format": "Hardcover", "description": "A whimsical Cosmere tale." },
+    { "isbn": "9780765326478", "title": "Warbreaker", "author": "Brandon Sanderson", "publicationYear": 2009, "edition": "First Edition", "format": "Paperback", "description": "Standalone with ties to Stormlight." },
+    { "isbn": "9780765326362", "title": "Words of Radiance", "author": "Brandon Sanderson", "publicationYear": 2014, "edition": "First Edition", "format": "Hardcover", "description": "Second Stormlight Archive novel." }
+  ],
+  "nextToken": null
+}
+
+#else
+{
+  "items": [],
+  "nextToken": null
+}
+#end
