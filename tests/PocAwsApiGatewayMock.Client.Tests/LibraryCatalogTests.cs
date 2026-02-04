@@ -12,7 +12,8 @@ public class LibraryCatalogTests : IDisposable
     public LibraryCatalogTests()
     {
         _http = new HttpClient(); // later: add handler / default headers / timeouts here
-        _transport = new AwsApiGatewayTransport(_http, new Uri("https://example"));
+        //TODO: keep ACTUAL URL out of source code
+        _transport = new AwsApiGatewayTransport(_http, new Uri("https://REPLACE.execute-api.us-east-2.amazonaws.com"));
         _catalog = new LibraryCatalog(_transport);
     }
 
