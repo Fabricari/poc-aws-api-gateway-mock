@@ -3,17 +3,31 @@ using PocAwsApiGatewayMock.Client;
 
 namespace PocAwsApiGatewayMock.Client.Tests;
 
+// Demo-oriented contract tests for an API Gateway-backed Mock API.
+// These tests intentionally hit a real API Gateway endpoint (not in-memory fakes)
+// to prove: routing, request shaping (path/query/headers), and response mapping.
 public class LibraryCatalogTests : IDisposable
 {
+    // Placeholder URI for the demo. Replace with a real API Gateway invoke URL
+    // to run the live contract tests. Be mindful of usage and costs.
+    private readonly Uri _baseUri = new("https://example.invalid");
+    
     private readonly HttpClient _http;
     private readonly AwsApiGatewayTransport _transport;
     private readonly LibraryCatalog _catalog;
 
     public LibraryCatalogTests()
     {
-        _http = new HttpClient(); // later: add handler / default headers / timeouts here
-        //TODO: keep ACTUAL URL out of source code
-        _transport = new AwsApiGatewayTransport(_http, new Uri("https://REPLACE.execute-api.us-east-2.amazonaws.com"));
+        // Use a real HttpClient to exercise the full HTTP stack.
+        // Handlers, headers, and timeouts can be added later as needed.
+        _http = new HttpClient(); 
+
+        // These tests require a live API Gateway endpoint.
+        // Fail fast if the placeholder URL is still in use.
+        if (_baseUri.Host.EndsWith(".invalid", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("Set the API Gateway base URL in LibraryCatalogTests to run live contract tests.");
+
+        _transport = new AwsApiGatewayTransport(_http, _baseUri);
         _catalog = new LibraryCatalog(_transport);
     }
 
@@ -22,6 +36,8 @@ public class LibraryCatalogTests : IDisposable
         _http.Dispose();
     }
 
+    // Proves: basic GET by identifier using a path parameter.
+    // Exercises API Gateway resource routing, URL encoding, and 200 JSON mapping.
     [Fact]
     public void GetCatalogRecordByIsbn_ReturnsRecord_WithIsbn()
     {
@@ -32,6 +48,8 @@ public class LibraryCatalogTests : IDisposable
         Assert.Equal("9780765326355", record.Isbn);
     }
 
+    // Proves: query-string based lookup with exact-match semantics.
+    // Exercises query parameter mapping and list response deserialization.
     [Fact]
     public void GetCatalogRecordsByExactTitle_ReturnsSingleRecord_WithTitle()
     {
@@ -44,6 +62,7 @@ public class LibraryCatalogTests : IDisposable
 
     // --- Remaining PoC contract tests (placeholders for now) ---
 
+    // Proves: pagination mechanics using limit/nextToken and stable sorting across pages.
     [Fact(Skip = "Not implemented: requires paging API (limit/nextToken) and a stable sort contract.")]
     public void ListBooksByAuthor_Paginates_Accumulates_AllPages_AndTerminates()
     {
@@ -55,6 +74,7 @@ public class LibraryCatalogTests : IDisposable
         //   - stops when nextToken is null/empty
     }
 
+    // Proves: list-by-foreign-key behavior and that an empty result is still a valid 200.
     [Fact(Skip = "Not implemented: requires list-by-foreign-key endpoint and empty-list handling.")]
     public void GetCheckedOutItemsByPatronId_Returns200_WithEmptyListWhenNone()
     {
@@ -66,6 +86,7 @@ public class LibraryCatalogTests : IDisposable
         //   - no exception thrown
     }
 
+    // Proves: separate resource modeling with a minimal payload (status-only response).
     [Fact(Skip = "Not implemented: requires item availability resource and status mapping.")]
     public void GetAvailabilityByBarcode_ReturnsStatus_AndParsesSmallPayload()
     {
@@ -76,6 +97,7 @@ public class LibraryCatalogTests : IDisposable
         //   - no reliance on embedded catalog fields
     }
 
+    // Proves: POST semantics, request body mapping, and idempotency-key support.
     [Fact(Skip = "Not implemented: requires POST hold endpoint and mapping of created hold record.")]
     public void PlaceHold_ReturnsCreatedHold_AndSupportsIdempotencyKey()
     {
@@ -87,6 +109,7 @@ public class LibraryCatalogTests : IDisposable
         //   - if repeated with same idempotency key, behavior is consistent
     }
 
+    // Proves: API Gateway mocks can model domain failures beyond generic 4xx responses.
     [Fact(Skip = "Not implemented: requires domain error mapping (expired card) to a specific exception/result type.")]
     public void PlaceHold_WhenPatronCardExpired_MapsDomainFailureToExpectedError()
     {
@@ -97,6 +120,7 @@ public class LibraryCatalogTests : IDisposable
         //   - error code/message mapped (not a generic 'HttpRequestException' leak)
     }
 
+    // Proves: DELETE behavior, idempotency, and 204 No Content handling.
     [Fact(Skip = "Not implemented: requires DELETE cancel endpoint and 204 No Content handling.")]
     public void CancelHold_IsIdempotent_AndHandlesNoContent()
     {
@@ -108,6 +132,7 @@ public class LibraryCatalogTests : IDisposable
         //   - 204 with empty body does not throw during deserialization
     }
 
+    // Proves: conflict modeling (409/412) and retry behavior tied to idempotency rules.
     [Fact(Skip = "Not implemented: requires conflict behavior (409/412) and retry policy rules.")]
     public void CheckoutLastCopy_WhenConcurrentCheckoutOccurs_MapsConflictAndRetryPolicy()
     {
@@ -118,6 +143,7 @@ public class LibraryCatalogTests : IDisposable
         //   - retries only if operation is safe/idempotent per your policy
     }
 
+    // Proves: state-transition endpoints and repeat-action semantics.
     [Fact(Skip = "Not implemented: requires return endpoint and state transition semantics.")]
     public void ReturnItem_TransitionsToAvailable_AndRepeatReturnIsDefined()
     {
@@ -128,6 +154,7 @@ public class LibraryCatalogTests : IDisposable
         //   - repeat is either safe no-op OR conflict (choose and codify)
     }
 
+    // Proves: PATCH support, partial updates, and server-side path validation.
     [Fact(Skip = "Not implemented: requires PATCH semantics and validation of patch paths.")]
     public void PatchCatalogRecord_UpdatesDescriptionOnly_WithoutTouchingOtherFields()
     {
@@ -139,6 +166,7 @@ public class LibraryCatalogTests : IDisposable
         //   - invalid paths rejected cleanly (server-side)
     }
 
+    // Proves: caching via ETag and correct handling of 304 with an empty body.
     [Fact(Skip = "Not implemented: requires caching via ETag and handling 304 Not Modified.")]
     public void GetCatalogRecord_UsesETagCache_AndHandles304WithEmptyBody()
     {
@@ -151,6 +179,7 @@ public class LibraryCatalogTests : IDisposable
         //   - returns cached object from first call
     }
 
+    // Proves: required request headers and response header capture across calls.
     [Fact(Skip = "Not implemented: requires correlation id header on every request and request-id capture.")]
     public void Requests_AlwaysSendCorrelationId_AndCaptureServerRequestId()
     {
@@ -162,6 +191,7 @@ public class LibraryCatalogTests : IDisposable
         //   - behavior consistent across retries
     }
 
+    // Proves: rate-limiting behavior, Retry-After parsing, and backoff rules.
     [Fact(Skip = "Not implemented: requires 429 handling and Retry-After parsing/backoff.")]
     public void WhenRateLimited_RespectsRetryAfter_AndRetriesAccordingToPolicy()
     {
@@ -173,6 +203,7 @@ public class LibraryCatalogTests : IDisposable
         //   - surfaces error if still limited after N
     }
 
+    // Proves: transient failure modeling and retry rules for idempotent vs non-idempotent calls.
     [Fact(Skip = "Not implemented: requires transient 502/503 handling and max attempts policy.")]
     public void WhenBackendTransientFailure_UsesRetryPolicy_AndAvoidsRetryingNonIdempotentCalls()
     {
@@ -182,6 +213,7 @@ public class LibraryCatalogTests : IDisposable
         // Act / Assert: codify your policy explicitly
     }
 
+    // Proves: cancellation propagation and avoidance of zombie work.
     [Fact(Skip = "Not implemented: requires CancellationToken plumbed through and prompt cancellation behavior.")]
     public void CancellationToken_CancelsInFlightRequest_AndAvoidsZombieWork()
     {
@@ -192,6 +224,7 @@ public class LibraryCatalogTests : IDisposable
         //   - no additional retries/work continues after cancellation
     }
 
+    // Proves: forward-compatible parsing when new enum/string values appear.
     [Fact(Skip = "Not implemented: requires forward-compatible parsing for unknown enum/string values.")]
     public void UnknownFormatValue_DoesNotCrash_AndMapsToUnknown()
     {
@@ -202,6 +235,7 @@ public class LibraryCatalogTests : IDisposable
         //   - unknown value mapped to Unknown (or preserved as raw string, your choice)
     }
 
+    // Proves: handling of large responses and optional content encoding.
     [Fact(Skip = "Not implemented: requires large response handling strategy (streaming vs buffering) and possibly gzip.")]
     public void ExportCheckoutHistory_HandlesLargeResponses_AndOptionalContentEncoding()
     {
