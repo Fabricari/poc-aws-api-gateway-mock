@@ -4,32 +4,46 @@ using System.Text.Json;
 
 namespace PocAwsApiGatewayMock.Client;
 
+// Transport responsible for talking directly to AWS API Gateway.
+//
+// This layer owns HTTP mechanics, URI construction, and JSON
+// serialization concerns. It intentionally exposes methods that
+// reflect API Gateway resources and query shapes, not domain concepts.
+//
+// Higher-level clients (e.g., LibraryCatalog) depend on this class
+// so that AWS- and HTTP-specific details remain contained here.
 public class AwsApiGatewayTransport
 {
     private readonly HttpClient _http;
     private readonly Uri _baseUri;
-    private readonly JsonSerializerOptions _jsonOptions;
+    
+    //Serialization policy is part of the transport contract. If it needs to vary, we’ll introduce a seam then.
+    private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web);
 
 
-    public AwsApiGatewayTransport(HttpClient http, Uri baseUri, JsonSerializerOptions? jsonOptions = null)
+    public AwsApiGatewayTransport(HttpClient http, Uri baseUri)
     {
         _http = http;
         _baseUri = baseUri;
-        _jsonOptions = jsonOptions ?? new JsonSerializerOptions(JsonSerializerDefaults.Web);
     }
 
-
-    // Transport-level API (still “about AWS gateway resources”, not JSON/URI)
+    // Transport-level operations that map directly to API Gateway resources.
     public CatalogRecord GetCatalogRecordByIsbn(string isbn)
         => Get200Json<CatalogRecord>($"/dev/catalog/{EscapePath(isbn)}");
 
     public List<CatalogRecord> GetCatalogRecordsByExactTitle(string title)
         => Get200Json<List<CatalogRecord>>($"/dev/catalog?title={EscapeQuery(title)}&match=exact");
 
-    // Generic primitive (reusable across endpoints)
+    // Low-level primitive:
+    // - issues a GET
+    // - requires 200 OK
+    // - deserializes JSON
+    //
+    // This keeps error handling and serialization rules consistent
+    // across all transport methods.
     private T Get200Json<T>(string relativePath)
     {
-        var requestUri = new Uri(_baseUri, EnsureLeadingSlash(relativePath));
+        var requestUri = new Uri(_baseUri, relativePath);
 
         using var response = _http.GetAsync(requestUri).GetAwaiter().GetResult();
 
@@ -46,9 +60,7 @@ public class AwsApiGatewayTransport
         return result;
     }
 
-    private static string EnsureLeadingSlash(string path)
-        => path.StartsWith("/", StringComparison.Ordinal) ? path : "/" + path;
-
+    // Small helpers to keep URI construction explicit and safe.
     private static string EscapePath(string segment)
         => Uri.EscapeDataString(segment);
 
