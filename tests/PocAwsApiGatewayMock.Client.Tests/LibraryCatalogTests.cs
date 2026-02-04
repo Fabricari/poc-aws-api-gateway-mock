@@ -46,6 +46,9 @@ public class LibraryCatalogTests : IDisposable
         Assert.NotNull(record);
         Assert.NotNull(record.Isbn);
         Assert.Equal("9780765326355", record.Isbn);
+        Assert.Equal("The Way of Kings", record.Title);
+        Assert.Equal("Brandon Sanderson", record.Author);
+        Assert.Equal(2010, record.PublicationYear);
     }
 
     // Proves: query-string based lookup with exact-match semantics.
@@ -54,25 +57,46 @@ public class LibraryCatalogTests : IDisposable
     public void GetCatalogRecordsByExactTitle_ReturnsSingleRecord_WithTitle()
     {
         var records = _catalog.GetCatalogRecordsByExactTitle("The Way of Kings");
-        
+    
         Assert.NotNull(records);
         var record = Assert.Single(records);
         Assert.Equal("The Way of Kings", record.Title);
+
+        // Representative fields to prove full-object mapping for list results.
+        Assert.Equal("9780765326355", record.Isbn);
+        Assert.Equal("Brandon Sanderson", record.Author);
+    }
+    
+    // Proves: pagination mechanics using pageSize/nextToken and stable sorting across pages.
+    [Fact]
+    public void ListBooksByAuthor_Paginates_Accumulates_AllPages_AndTerminates()
+    {
+        // Arrange: author="Brandon Sanderson", pageSize small to force multiple pages
+        var author = "Brandon Sanderson";
+        var pageSize = 5;
+
+        // Act: client.ListBooksByAuthor(author, pageSize: 5)
+        var records = _catalog.ListBooksByAuthor(author, pageSize);
+
+        // Assert:
+        //   - returns all items across pages (accumulated)
+        //   - ordering is stable (e.g., by Title then Isbn)
+        //   - stops when nextToken is null/empty
+        Assert.NotNull(records);
+        Assert.True(records.Count > pageSize); // proves we crossed a page boundary
+
+        // Minimal stable-order proof without baking in every expected title.
+        var expectedOrder = records
+            .OrderBy(r => r.Title, StringComparer.Ordinal)
+            .ThenBy(r => r.Isbn, StringComparer.Ordinal)
+            .ToList();
+
+        Assert.Equal(
+            expectedOrder.Select(r => (r.Title, r.Isbn)),
+            records.Select(r => (r.Title, r.Isbn)));
     }
 
     // --- Remaining PoC contract tests (placeholders for now) ---
-
-    // Proves: pagination mechanics using limit/nextToken and stable sorting across pages.
-    [Fact(Skip = "Not implemented: requires paging API (limit/nextToken) and a stable sort contract.")]
-    public void ListBooksByAuthor_Paginates_Accumulates_AllPages_AndTerminates()
-    {
-        // Arrange: author="Brandon Sanderson", limit small to force multiple pages
-        // Act: client.ListBooksByAuthor(author, limit: 2, cancellationToken)
-        // Assert:
-        //   - returns all items across pages (accumulated)
-        //   - ordering is stable (e.g., by Title then Isbn) OR whatever you decide
-        //   - stops when nextToken is null/empty
-    }
 
     // Proves: list-by-foreign-key behavior and that an empty result is still a valid 200.
     [Fact(Skip = "Not implemented: requires list-by-foreign-key endpoint and empty-list handling.")]
