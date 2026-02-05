@@ -1,4 +1,4 @@
-using PocAwsApiGatewayMock.Client;
+using PocAwsApiGatewayMock.Client.Models;
 
 // Transport-level page envelope returned by list endpoints.
 //

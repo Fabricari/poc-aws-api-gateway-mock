@@ -1,3 +1,5 @@
+using PocAwsApiGatewayMock.Client.Models;
+
 namespace PocAwsApiGatewayMock.Client;
 
 // Domain-facing client for the library catalog.
@@ -45,4 +47,7 @@ public class LibraryCatalog
 
         return accumulatedRecords;
     }
+
+    public HoldReply PlaceHold(string isbn, string patronId)
+        => _transport.PlaceHold(isbn, patronId);
 }

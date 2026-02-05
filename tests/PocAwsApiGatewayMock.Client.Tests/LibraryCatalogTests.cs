@@ -1,5 +1,6 @@
 using Xunit;
 using PocAwsApiGatewayMock.Client;
+using PocAwsApiGatewayMock.Client.Models;
 
 namespace PocAwsApiGatewayMock.Client.Tests;
 
@@ -10,7 +11,8 @@ public class LibraryCatalogTests : IDisposable
 {
     // Placeholder URI for the demo. Replace with a real API Gateway invoke URL
     // to run the live contract tests. Be mindful of usage and costs.
-    private readonly Uri _baseUri = new("https://example.invalid");
+    private readonly Uri _baseUri = new("https://vxx7r3fub9.execute-api.us-east-2.amazonaws.com/dev");
+    // private readonly Uri _baseUri = new("https://example.invalid");
     
     private readonly HttpClient _http;
     private readonly AwsApiGatewayTransport _transport;
@@ -96,177 +98,45 @@ public class LibraryCatalogTests : IDisposable
             records.Select(r => (r.Title, r.Isbn)));
     }
 
-    // --- Remaining PoC contract tests (placeholders for now) ---
-
-    // Proves: list-by-foreign-key behavior and that an empty result is still a valid 200.
-    [Fact(Skip = "Not implemented: requires list-by-foreign-key endpoint and empty-list handling.")]
-    public void GetCheckedOutItemsByPatronId_Returns200_WithEmptyListWhenNone()
+    // Proves: POST with a JSON body can be mocked in API Gateway without compute.
+    // Exercises body mapping, 201 Created semantics, and JSON response mapping.
+    [Fact]
+    public void PlaceHold_ReturnsCreatedHold_WithHoldId()
     {
-        // Arrange: patronId=12345; mock returns 200 with []
-        // Act: client.GetCheckedOutItemsByPatronId("12345")
-        // Assert:
-        //   - result not null
-        //   - result is empty (Count == 0)
-        //   - no exception thrown
+        // Arrange
+        var isbn = "9780765326355";
+        var patronId = "P-12345"; //This is an active Patron Id
+
+        // Act
+        var holdReply = _catalog.PlaceHold(isbn, patronId);
+
+        // Assert (representative fields; not deep equals)
+        Assert.NotNull(holdReply);
+        Assert.False(string.IsNullOrWhiteSpace(holdReply.HoldId));
+        Assert.Equal(isbn, holdReply.Isbn);
+        Assert.Equal(patronId, holdReply.PatronId);
+        Assert.Equal(HoldStatus.Placed, holdReply.Status);
     }
 
-    // Proves: separate resource modeling with a minimal payload (status-only response).
-    [Fact(Skip = "Not implemented: requires item availability resource and status mapping.")]
-    public void GetAvailabilityByBarcode_ReturnsStatus_AndParsesSmallPayload()
+    // Proves: VTL conditional logic can model domain failure paths without a backend.
+    // Exercises non-2xx behavior (409) and error response mapping.
+    [Fact]
+    public void PlaceHold_WhenPatronCardExpired_ReturnsRejectedHoldReply()
     {
-        // Arrange: barcode=314159265; mock returns minimal JSON (status only)
-        // Act: client.GetAvailabilityByBarcode("314159265")
-        // Assert:
-        //   - status parsed correctly
-        //   - no reliance on embedded catalog fields
+        // Arrange: patronId value is used by the mock template to branch to a 409 response
+        var isbn = "9780765326355";
+        var patronId = "P-EXPIRED"; //This is an expired Patron Id
+
+        // Act
+        var holdReply = _catalog.PlaceHold(isbn, patronId);
+
+        // Assert (representative fields; not deep equals)
+        Assert.NotNull(holdReply);
+        Assert.Null(holdReply.HoldId);
+        Assert.Equal(isbn, holdReply.Isbn);
+        Assert.Equal(patronId, holdReply.PatronId);
+        Assert.Equal(HoldStatus.Rejected, holdReply.Status);
+        Assert.Equal(HoldReasonCode.PatronCardExpired, holdReply.ReasonCode);
     }
 
-    // Proves: POST semantics, request body mapping, and idempotency-key support.
-    [Fact(Skip = "Not implemented: requires POST hold endpoint and mapping of created hold record.")]
-    public void PlaceHold_ReturnsCreatedHold_AndSupportsIdempotencyKey()
-    {
-        // Arrange: isbn, patronId, optional idempotency key
-        // Act: client.PlaceHold(isbn, patronId, idempotencyKey: ...)
-        // Assert:
-        //   - maps 201/200 semantics correctly (your choice)
-        //   - returns hold id / record
-        //   - if repeated with same idempotency key, behavior is consistent
-    }
-
-    // Proves: API Gateway mocks can model domain failures beyond generic 4xx responses.
-    [Fact(Skip = "Not implemented: requires domain error mapping (expired card) to a specific exception/result type.")]
-    public void PlaceHold_WhenPatronCardExpired_MapsDomainFailureToExpectedError()
-    {
-        // Arrange: patronId with expired card; mock returns 403/409/422 (contract decision)
-        // Act: place hold
-        // Assert:
-        //   - correct exception type OR error result
-        //   - error code/message mapped (not a generic 'HttpRequestException' leak)
-    }
-
-    // Proves: DELETE behavior, idempotency, and 204 No Content handling.
-    [Fact(Skip = "Not implemented: requires DELETE cancel endpoint and 204 No Content handling.")]
-    public void CancelHold_IsIdempotent_AndHandlesNoContent()
-    {
-        // Arrange: holdId H-2026-000123
-        // Act: cancel once, cancel again
-        // Assert:
-        //   - first cancel returns success
-        //   - second cancel is either 204 (no-op) OR 404-by-design (pick one and codify)
-        //   - 204 with empty body does not throw during deserialization
-    }
-
-    // Proves: conflict modeling (409/412) and retry behavior tied to idempotency rules.
-    [Fact(Skip = "Not implemented: requires conflict behavior (409/412) and retry policy rules.")]
-    public void CheckoutLastCopy_WhenConcurrentCheckoutOccurs_MapsConflictAndRetryPolicy()
-    {
-        // Arrange: simulate conflict on first attempt, success on retry OR always conflict (your choice)
-        // Act: client.CheckoutItem(...)
-        // Assert:
-        //   - conflict maps to expected error type
-        //   - retries only if operation is safe/idempotent per your policy
-    }
-
-    // Proves: state-transition endpoints and repeat-action semantics.
-    [Fact(Skip = "Not implemented: requires return endpoint and state transition semantics.")]
-    public void ReturnItem_TransitionsToAvailable_AndRepeatReturnIsDefined()
-    {
-        // Arrange: barcode=314159265
-        // Act: return once, return again
-        // Assert:
-        //   - status becomes Available (or equivalent)
-        //   - repeat is either safe no-op OR conflict (choose and codify)
-    }
-
-    // Proves: PATCH support, partial updates, and server-side path validation.
-    [Fact(Skip = "Not implemented: requires PATCH semantics and validation of patch paths.")]
-    public void PatchCatalogRecord_UpdatesDescriptionOnly_WithoutTouchingOtherFields()
-    {
-        // Arrange: patch payload modifies description only
-        // Act: client.PatchCatalogRecord(isbn, patchDoc)
-        // Assert:
-        //   - title/author unchanged
-        //   - correct content-type used (e.g., application/json-patch+json) if that’s your contract
-        //   - invalid paths rejected cleanly (server-side)
-    }
-
-    // Proves: caching via ETag and correct handling of 304 with an empty body.
-    [Fact(Skip = "Not implemented: requires caching via ETag and handling 304 Not Modified.")]
-    public void GetCatalogRecord_UsesETagCache_AndHandles304WithEmptyBody()
-    {
-        // Arrange:
-        //   - first GET returns 200 + ETag + body
-        //   - second GET sends If-None-Match and receives 304 with no body
-        // Act: client.GetCatalogRecordByIsbn twice
-        // Assert:
-        //   - second call does not attempt to deserialize empty body
-        //   - returns cached object from first call
-    }
-
-    // Proves: required request headers and response header capture across calls.
-    [Fact(Skip = "Not implemented: requires correlation id header on every request and request-id capture.")]
-    public void Requests_AlwaysSendCorrelationId_AndCaptureServerRequestId()
-    {
-        // Arrange: configure client with correlation id provider
-        // Act: perform any call (GET/POST)
-        // Assert:
-        //   - outgoing header present on every request
-        //   - server request-id captured/returned/exposed consistently
-        //   - behavior consistent across retries
-    }
-
-    // Proves: rate-limiting behavior, Retry-After parsing, and backoff rules.
-    [Fact(Skip = "Not implemented: requires 429 handling and Retry-After parsing/backoff.")]
-    public void WhenRateLimited_RespectsRetryAfter_AndRetriesAccordingToPolicy()
-    {
-        // Arrange: first call returns 429 + Retry-After, next call returns 200
-        // Act: call client method
-        // Assert:
-        //   - waits/backs off (in unit tests you’ll likely inject a clock/scheduler)
-        //   - retries max N times
-        //   - surfaces error if still limited after N
-    }
-
-    // Proves: transient failure modeling and retry rules for idempotent vs non-idempotent calls.
-    [Fact(Skip = "Not implemented: requires transient 502/503 handling and max attempts policy.")]
-    public void WhenBackendTransientFailure_UsesRetryPolicy_AndAvoidsRetryingNonIdempotentCalls()
-    {
-        // Arrange:
-        //   - GET returns 503 then 200 (retryable)
-        //   - POST returns 503 (should not blindly retry unless idempotency key is used)
-        // Act / Assert: codify your policy explicitly
-    }
-
-    // Proves: cancellation propagation and avoidance of zombie work.
-    [Fact(Skip = "Not implemented: requires CancellationToken plumbed through and prompt cancellation behavior.")]
-    public void CancellationToken_CancelsInFlightRequest_AndAvoidsZombieWork()
-    {
-        // Arrange: a request that would block/delay
-        // Act: cancel token quickly
-        // Assert:
-        //   - Task is canceled promptly (OperationCanceledException / TaskCanceledException)
-        //   - no additional retries/work continues after cancellation
-    }
-
-    // Proves: forward-compatible parsing when new enum/string values appear.
-    [Fact(Skip = "Not implemented: requires forward-compatible parsing for unknown enum/string values.")]
-    public void UnknownFormatValue_DoesNotCrash_AndMapsToUnknown()
-    {
-        // Arrange: server returns format = "eBookAudioHybrid"
-        // Act: parse into model
-        // Assert:
-        //   - parsing succeeds
-        //   - unknown value mapped to Unknown (or preserved as raw string, your choice)
-    }
-
-    // Proves: handling of large responses and optional content encoding.
-    [Fact(Skip = "Not implemented: requires large response handling strategy (streaming vs buffering) and possibly gzip.")]
-    public void ExportCheckoutHistory_HandlesLargeResponses_AndOptionalContentEncoding()
-    {
-        // Arrange: thousands of rows; maybe gzip content-encoding
-        // Act: client.ExportCheckoutHistory(patronId, cancellationToken)
-        // Assert:
-        //   - does not OOM / does not buffer entire response if streaming is intended
-        //   - handles gzip if enabled
-    }
 }

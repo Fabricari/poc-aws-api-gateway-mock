@@ -30,3 +30,6 @@ When you create a parameter mapping, you can use context variables as your data 
 
 - Apache Velocity Template Language Reference  
   https://velocity.apache.org/engine/devel/vtl-reference.html
+
+- Mapping template transformations for REST APIs in API Gateway
+  https://docs.aws.amazon.com/apigateway/latest/developerguide/models-mappings.html
