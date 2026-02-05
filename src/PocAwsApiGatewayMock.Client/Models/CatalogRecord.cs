@@ -1,4 +1,4 @@
-namespace PocAwsApiGatewayMock.Client;
+namespace PocAwsApiGatewayMock.Client.Models;
 
 // Data model representing a catalog record as returned by the API.
 //
