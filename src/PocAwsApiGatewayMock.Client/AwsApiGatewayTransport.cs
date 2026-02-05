@@ -19,10 +19,10 @@ public class AwsApiGatewayTransport
     private readonly HttpClient _http;
     private readonly Uri _baseUri;
     
-    //Serialization policy is part of the transport contract. If it needs to vary, we’ll introduce a seam then.
-    // private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web);
-
     // Serialization policy is part of the transport contract.
+    // Enums are serialized as strings by the API (e.g., "Placed", "Rejected").
+    // Because these DTOs flow across layers without an explicit DTO→domain mapping,
+    // the transport configures string↔enum conversion at the serialization boundary.
     private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web)
     {
         Converters = { new JsonStringEnumConverter() }
