@@ -11,8 +11,7 @@ public class LibraryCatalogTests : IDisposable
 {
     // Placeholder URI for the demo. Replace with a real API Gateway invoke URL
     // to run the live contract tests. Be mindful of usage and costs.
-    private readonly Uri _baseUri = new("https://vxx7r3fub9.execute-api.us-east-2.amazonaws.com/dev");
-    // private readonly Uri _baseUri = new("https://example.invalid");
+    private readonly Uri _baseUri = new("https://example.invalid");
     
     private readonly HttpClient _http;
     private readonly AwsApiGatewayTransport _transport;
