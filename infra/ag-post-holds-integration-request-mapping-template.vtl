@@ -1,0 +1,5 @@
+#set($context.requestOverride.path.isbn = $input.json('$.isbn'))
+#set($context.requestOverride.path.patronId = $input.json('$.patronId'))
+{
+  "statusCode": 200
+}

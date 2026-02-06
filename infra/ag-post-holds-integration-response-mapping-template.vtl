@@ -1,0 +1,21 @@
+#set($isbn = $context.requestOverride.path.isbn)
+#set($patronId = $context.requestOverride.path.patronId)
+
+#if($patronId.contains("P-EXPIRED"))
+#set($context.responseOverride.status = 409)
+{
+  "holdId": null,
+  "isbn": $isbn,
+  "patronId": $patronId,
+  "status": "Rejected",
+  "reasonCode": "PatronCardExpired"
+}
+#else
+{
+  "holdId": "H-2026-000123",
+  "isbn": $isbn,
+  "patronId": $patronId,
+  "status": "Placed",
+  "reasonCode": null
+}
+#end
