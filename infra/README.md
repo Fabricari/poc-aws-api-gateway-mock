@@ -10,6 +10,12 @@ This proof of concept relies heavily on **API Gateway mock integrations** and **
 
 ## Helpful Resources
 
+- What is Amazon API Gateway?
+  https://docs.aws.amazon.com/apigateway/latest/developerguide/welcome.html
+
+- Mock integrations for REST APIs in API Gateway
+  https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-mock-integration.html
+
 - AWS API Gateway Mapping Template Reference  
   https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-mapping-template-reference.html
 
