@@ -13,10 +13,19 @@ This proof of concept relies heavily on **API Gateway mock integrations** and **
 - What is Amazon API Gateway?
   https://docs.aws.amazon.com/apigateway/latest/developerguide/welcome.html
 
+- Develop REST APIs in API Gateway
+  https://docs.aws.amazon.com/apigateway/latest/developerguide/rest-api-develop.html
+
 - Mock integrations for REST APIs in API Gateway
   https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-mock-integration.html
 
-- AWS API Gateway Mapping Template Reference  
+- Mapping template transformations for REST APIs in API Gateway
+  https://docs.aws.amazon.com/apigateway/latest/developerguide/models-mappings.html
+
+- Override your API's request and response parameters and status codes for REST APIs in API Gateway
+  https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-override-request-response-parameters.html
+
+- Variables for data transformations for API Gateway  
   https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-mapping-template-reference.html
 
 - Apache Velocity Template Language Reference  
@@ -27,3 +36,15 @@ This proof of concept relies heavily on **API Gateway mock integrations** and **
 
 - Override request and response parameters and status codes for REST APIs in API Gateway  
   https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-override-request-response-parameters.html
+
+## Test POST Values
+{
+  "isbn": "9780765326355",
+  "patronId": "P-12345"
+}
+
+{
+  "isbn": "9780765326355",
+  "patronId": "P-EXPIRED"
+}
+
