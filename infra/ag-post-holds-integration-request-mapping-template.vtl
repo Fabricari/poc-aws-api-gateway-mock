@@ -1,5 +1,8 @@
+## Persist request body fields for later use (MOCK responses cannot read the original body)
 #set($context.requestOverride.path.isbn = $input.json('$.isbn'))
 #set($context.requestOverride.path.patronId = $input.json('$.patronId'))
+
+## MOCK integrations require an explicit statusCode to drive response handling
 {
   "statusCode": 200
 }

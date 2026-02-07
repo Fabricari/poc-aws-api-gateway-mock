@@ -1,8 +1,9 @@
-#set($token = $input.params('nextToken'))
+## Read optional query parameters (only nextToken is used to drive paging in this mock)
+#set($token  = $input.params('nextToken'))
 #set($author = $input.params('author'))
-#set($limit = $input.params('limit'))
+#set($limit  = $input.params('limit'))
 
-## Page 1: Titles 1–5 (sorted by Title then Isbn)
+## If no nextToken was provided, return the first page and include a token for the next page
 #if($token == '')
 {
   "items": [
@@ -15,7 +16,7 @@
   "nextToken": "p2"
 }
 
-## Page 2: Titles 6–10 (sorted by Title then Isbn)
+## Token p2 returns the second page and advances the token again
 #elseif($token == 'p2')
 {
   "items": [
@@ -28,7 +29,7 @@
   "nextToken": "p3"
 }
 
-## Page 3: Titles 11–14 (sorted by Title then Isbn)
+## Token p3 returns the final page and ends pagination by returning nextToken = null
 #elseif($token == 'p3')
 {
   "items": [
@@ -40,6 +41,7 @@
   "nextToken": null
 }
 
+## Unknown/expired token: return an empty page and terminate
 #else
 {
   "items": [],
