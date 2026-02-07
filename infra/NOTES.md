@@ -4,7 +4,7 @@
 
 Now, not too long ago, I was brushing up on some of that AWS training. And it got me to take a closer look at their API Gateways. And something caught my eye. Apparently, you can use it with mock integrations! With mock data. Instead of having to wire it up to a bunch of ready-to-go backend services or repos, you can just configure it with some test data right there in the console.
 
-And, since I’m already a bit of a fanboy for using mock APIs, this got me wanting to take it for a test drive... to see if it's actually a practical, fully-capable tool that I can, in good faith, recommend to my devs and testers. Lord knows, with all that code AI's been cranking out these days, a test engineer's gonna need all the help they can get.
+And, since I’m already a bit of a fanboy for using mock APIs, this got me wanting to take it for a test drive... to see if it's actually a practical, fully-capable tool that I can, in good faith, recommend to other developers and testers. Lord knows, with all that code AI's been cranking out these days, a test engineer's gonna need all the help they can get.
 
 Now, mock APIs are actually pretty useful for helping frontend (or client) developers who want to be able to work independently, writing code and showing it off to customers and stakeholders. To be able iterate without having to wait for backend services to get built and deployed. 
 
