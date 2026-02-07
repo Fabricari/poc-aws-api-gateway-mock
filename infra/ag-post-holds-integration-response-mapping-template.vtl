@@ -1,21 +1,25 @@
+## Retrieve values saved during the Integration Request phase
 #set($isbn = $context.requestOverride.path.isbn)
 #set($patronId = $context.requestOverride.path.patronId)
 
+## Simulate a business rule failure based on patron state
 #if($patronId.contains("P-EXPIRED"))
-#set($context.responseOverride.status = 409)
-{
-  "holdId": null,
-  "isbn": $isbn,
-  "patronId": $patronId,
-  "status": "Rejected",
-  "reasonCode": "PatronCardExpired"
-}
+  ## Override the default success status to return a conflict error
+  #set($context.responseOverride.status = 409)
+  {
+    "holdId": null,
+    "isbn": $isbn,
+    "patronId": $patronId,
+    "status": "Rejected",
+    "reasonCode": "PatronCardExpired"
+  }
 #else
-{
-  "holdId": "H-2026-000123",
-  "isbn": $isbn,
-  "patronId": $patronId,
-  "status": "Placed",
-  "reasonCode": null
-}
+  ## Normal success response for a newly placed hold
+  {
+    "holdId": "H-2026-000123",
+    "isbn": $isbn,
+    "patronId": $patronId,
+    "status": "Placed",
+    "reasonCode": null
+  }
 #end
