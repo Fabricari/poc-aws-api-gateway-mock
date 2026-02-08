@@ -1,6 +1,4 @@
 ## Return a 3-item list to model a query by title
-#set($q = $input.params('title'))
-#if($q && $q.toLowerCase().contains("mistborn"))
 [
   {
     "isbn": "9780765311788",
@@ -30,6 +28,3 @@
     "description": "Book three of the original Mistborn trilogy."
   }
 ]
-#else
-[]
-#end
