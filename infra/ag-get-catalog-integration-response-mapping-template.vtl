@@ -1,12 +1,35 @@
-## Return a single-item list to model an exact-match query by title
+## Return a 3-item list to model a query by title
+#set($q = $input.params('title'))
+#if($q && $q.toLowerCase().contains("mistborn"))
 [
   {
-    "isbn": "9780765326355",
-    "title": "The Way of Kings",
+    "isbn": "9780765311788",
+    "title": "Mistborn: The Final Empire",
     "author": "Brandon Sanderson",
-    "publicationYear": 2010,
+    "publicationYear": 2006,
     "edition": "First Edition",
     "format": "Hardcover",
-    "description": "A sweeping epic fantasy about war, prophecy, and the cost of power on the storm-lashed world of Roshar."
+    "description": "Book one of the original Mistborn trilogy."
+  },
+  {
+    "isbn": "9780765316882",
+    "title": "Mistborn: The Well of Ascension",
+    "author": "Brandon Sanderson",
+    "publicationYear": 2007,
+    "edition": "First Edition",
+    "format": "Hardcover",
+    "description": "Book two of the original Mistborn trilogy."
+  },
+  {
+    "isbn": "9780765316899",
+    "title": "Mistborn: The Hero of Ages",
+    "author": "Brandon Sanderson",
+    "publicationYear": 2008,
+    "edition": "First Edition",
+    "format": "Hardcover",
+    "description": "Book three of the original Mistborn trilogy."
   }
 ]
+#else
+[]
+#end

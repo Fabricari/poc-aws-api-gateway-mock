@@ -38,8 +38,8 @@ public class AwsApiGatewayTransport
     public CatalogRecord GetCatalogRecordByIsbn(string isbn)
         => Get200Json<CatalogRecord>($"/dev/catalog/{EscapePath(isbn)}");
 
-    public List<CatalogRecord> GetCatalogRecordsByExactTitle(string title)
-        => Get200Json<List<CatalogRecord>>($"/dev/catalog?title={EscapeQuery(title)}&match=exact");
+    public List<CatalogRecord> GetCatalogRecordsByTitle(string title)
+        => Get200Json<List<CatalogRecord>>($"/dev/catalog?title={EscapeQuery(title)}");
 
     public CatalogRecordPage ListBooksByAuthorPage(string author, int limit, string? nextToken)
     {

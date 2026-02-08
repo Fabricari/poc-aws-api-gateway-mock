@@ -52,20 +52,26 @@ public class LibraryCatalogTests : IDisposable
         Assert.Equal(2010, record.PublicationYear);
     }
 
-    // Proves: query-string based lookup with exact-match semantics.
+    // Proves: query-string based lookup with contains semantics returning a list.
     // Exercises query parameter mapping and list response deserialization.
     [Fact]
-    public void GetCatalogRecordsByExactTitle_ReturnsSingleRecord_WithTitle()
+    public void GetCatalogRecordsByTitle_ReturnsThreeRecords_WithMistbornInTitle()
     {
-        var records = _catalog.GetCatalogRecordsByExactTitle("The Way of Kings");
-    
-        Assert.NotNull(records);
-        var record = Assert.Single(records);
-        Assert.Equal("The Way of Kings", record.Title);
+        var records = _catalog.GetCatalogRecordsByTitle("Mistborn");
 
-        // Representative fields to prove full-object mapping for list results.
-        Assert.Equal("9780765326355", record.Isbn);
-        Assert.Equal("Brandon Sanderson", record.Author);
+        Assert.NotNull(records);
+        Assert.Equal(3, records.Count);
+
+        // Prove the query intent
+        Assert.All(records, r => Assert.Contains("Mistborn", r.Title, StringComparison.OrdinalIgnoreCase));
+
+        // Representative mapping checks (don’t overfit every field unless you want to)
+        Assert.All(records, r => Assert.Equal("Brandon Sanderson", r.Author));
+
+        // A couple of “anchor” checks to prove we got the expected set
+        Assert.Contains(records, r => r.Title == "Mistborn: The Final Empire");
+        Assert.Contains(records, r => r.Title == "Mistborn: The Well of Ascension");
+        Assert.Contains(records, r => r.Title == "Mistborn: The Hero of Ages");
     }
     
     // Proves: pagination mechanics using pageSize/nextToken and stable sorting across pages.
