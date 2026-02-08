@@ -20,8 +20,8 @@ public class LibraryCatalog
     public CatalogRecord GetCatalogRecordByIsbn(string isbn)
         => _transport.GetCatalogRecordByIsbn(isbn);
 
-    public List<CatalogRecord> GetCatalogRecordsByExactTitle(string title)
-        => _transport.GetCatalogRecordsByExactTitle(title);
+    public List<CatalogRecord> GetCatalogRecordsByTitle(string title)
+        => _transport.GetCatalogRecordsByTitle(title);
 
     public List<CatalogRecord> ListBooksByAuthor(string author, int pageSize)
     {
